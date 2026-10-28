@@ -33,7 +33,7 @@ const at = (y: number, m: number, d: number, h = 12): string => new Date(y, m - 
 describe("buildReview", () => {
   it("reports the week and next-week ranges", () => {
     const r = buildReview([], NOW);
-    expect([r.weekStart, r.weekEnd]).toEqual(["2026-10-26", "2026-11-01"]);
+    expect([r.periodStart, r.periodEnd]).toEqual(["2026-10-26", "2026-11-01"]);
     expect([r.nextStart, r.nextEnd]).toEqual(["2026-11-02", "2026-11-08"]);
   });
 
@@ -94,5 +94,21 @@ describe("buildReview", () => {
   it("ignores subtasks", () => {
     const r = buildReview([task({ parent_task_id: "p", deadline: "2026-10-01" })], NOW);
     expect(r.slipped).toHaveLength(0);
+  });
+
+  it("covers the whole month or quarter when asked", () => {
+    const m = buildReview([], NOW, "month");
+    expect([m.periodStart, m.periodEnd]).toEqual(["2026-10-01", "2026-10-31"]);
+    expect([m.nextStart, m.nextEnd]).toEqual(["2026-11-01", "2026-11-30"]);
+    const q = buildReview([], NOW, "quarter");
+    expect([q.periodStart, q.periodEnd]).toEqual(["2026-10-01", "2026-12-31"]);
+    expect([q.nextStart, q.nextEnd]).toEqual(["2027-01-01", "2027-03-31"]);
+  });
+
+  it("counts tasks finished earlier in the month under the month view only", () => {
+    const early = task({ status: "done", completed_at: new Date(2026, 9, 5, 10).toISOString() });
+    expect(buildReview([early], NOW, "week").completed).toHaveLength(0);
+    expect(buildReview([early], NOW, "month").completed).toHaveLength(1);
+    expect(buildReview([early], NOW, "quarter").completed).toHaveLength(1);
   });
 });

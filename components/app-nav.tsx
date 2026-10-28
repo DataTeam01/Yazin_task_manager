@@ -30,8 +30,8 @@ export function AppNav() {
     <>
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r bg-card/60 px-3 py-6 md:flex">
-        <Link href="/" className="mb-8 px-3 font-display text-2xl tracking-tight">
-          Tasks<span className="text-primary">.</span>
+        <Link href="/" className="mb-8 px-3 font-display whitespace-nowrap text-xl tracking-tight">
+          Yazin&apos;s Space<span className="text-primary">.</span>
         </Link>
         <nav aria-label="Main" className="flex flex-col gap-1">
           {ITEMS.map(({ href, label, icon: Icon }) => {

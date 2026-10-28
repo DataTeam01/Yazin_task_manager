@@ -4,7 +4,7 @@ import { toDateString } from "@/lib/dates";
 import { getTaskDialogData } from "@/lib/queries/task-dialog";
 import { listTasks } from "@/lib/queries/tasks";
 
-export const metadata: Metadata = { title: "Review" };
+export const metadata: Metadata = { title: "Manager's Review" };
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {

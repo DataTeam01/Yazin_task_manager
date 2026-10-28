@@ -6,9 +6,10 @@ import { CalendarClock, CheckCircle2, Clock, TriangleAlert } from "lucide-react"
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { TaskDialog } from "@/components/task-dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { parseDateOnly, toDateString } from "@/lib/dates";
 import type { TaskDialogData } from "@/lib/queries/task-dialog";
-import { buildReview } from "@/lib/tasks/review";
+import { buildReview, type ReviewPeriod } from "@/lib/tasks/review";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
 
@@ -17,6 +18,12 @@ interface ReviewViewProps {
   data: TaskDialogData;
   initialToday: string;
 }
+
+const PERIODS: Record<ReviewPeriod, { tab: string; noun: string; label: string; nextLabel: string }> = {
+  week: { tab: "Weekly", noun: "week", label: "Week of", nextLabel: "next week" },
+  month: { tab: "Monthly", noun: "month", label: "Month of", nextLabel: "next month" },
+  quarter: { tab: "Quarterly", noun: "quarter", label: "Quarter of", nextLabel: "next quarter" },
+};
 
 function formatMinutes(total: number): string {
   if (total <= 0) return "0m";
@@ -27,10 +34,12 @@ function formatMinutes(total: number): string {
 
 export function ReviewView({ tasks, data, initialToday }: ReviewViewProps) {
   const [today, setToday] = useState(initialToday);
+  const [period, setPeriod] = useState<ReviewPeriod>("week");
   const [dialog, setDialog] = useState<{ open: boolean; task: Task | null }>({ open: false, task: null });
   useEffect(() => setToday(toDateString(new Date())), []);
 
-  const review = useMemo(() => buildReview(tasks, new Date(`${today}T12:00:00`)), [tasks, today]);
+  const review = useMemo(() => buildReview(tasks, new Date(`${today}T12:00:00`), period), [tasks, today, period]);
+  const p = PERIODS[period];
   const projectsById = useMemo(() => new Map(data.projects.map((p) => [p.id, p])), [data.projects]);
   const open = (task: Task): void => setDialog({ open: true, task });
 
@@ -40,7 +49,7 @@ export function ReviewView({ tasks, data, initialToday }: ReviewViewProps) {
   const tiles = [
     { label: "Completed", value: String(review.completed.length), icon: CheckCircle2, tone: "text-primary" },
     { label: "Slipped", value: String(review.slipped.length), icon: TriangleAlert, tone: review.slipped.length > 0 ? "text-destructive" : "" },
-    { label: "Due next week", value: String(review.upcoming.length), icon: CalendarClock, tone: "" },
+    { label: `Due ${p.nextLabel}`, value: String(review.upcoming.length), icon: CalendarClock, tone: "" },
     { label: "Estimated time done", value: formatMinutes(review.minutesCompleted), icon: Clock, tone: "" },
   ];
 
@@ -81,9 +90,19 @@ export function ReviewView({ tasks, data, initialToday }: ReviewViewProps) {
   return (
     <>
       <PageHeader
-        title="Weekly review"
-        description={`Week of ${range(review.weekStart, review.weekEnd)}. Look back, then plan ahead.`}
+        title="Manager's Review"
+        description={`Ujwal - R, Manager - Data Team · ${p.label} ${range(review.periodStart, review.periodEnd)}. Look back, then plan ahead.`}
       />
+
+      <Tabs value={period} onValueChange={(v) => setPeriod(v as ReviewPeriod)} className="mb-6">
+        <TabsList aria-label="Review period">
+          {(Object.keys(PERIODS) as ReviewPeriod[]).map((key) => (
+            <TabsTrigger key={key} value={key}>
+              {PERIODS[key].tab}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       <dl className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         {tiles.map(({ label, value, icon: Icon, tone }) => (
@@ -100,17 +119,17 @@ export function ReviewView({ tasks, data, initialToday }: ReviewViewProps) {
       {nothing ? (
         <EmptyState
           icon={CheckCircle2}
-          title="A quiet week"
-          description="Nothing completed, nothing slipped and nothing due next week. Add tasks with deadlines from the board."
+          title={`A quiet ${p.noun}`}
+          description={`Nothing completed, nothing slipped and nothing due ${p.nextLabel}. Add tasks with deadlines from the board.`}
         />
       ) : (
         <>
           {section(
             "rv-completed",
-            "Completed this week",
-            "Finished between Monday and Sunday, newest first.",
+            `Completed this ${p.noun}`,
+            `Finished this ${p.noun}, newest first.`,
             review.completed.length,
-            "Nothing finished yet this week.",
+            `Nothing finished yet this ${p.noun}.`,
             review.completed.map((t) => row(t, t.completed_at ? format(new Date(t.completed_at), "EEE") : "")),
           )}
           {section(
@@ -125,10 +144,10 @@ export function ReviewView({ tasks, data, initialToday }: ReviewViewProps) {
           )}
           {section(
             "rv-upcoming",
-            "Due next week",
+            `Due ${p.nextLabel}`,
             `Open tasks with a deadline ${range(review.nextStart, review.nextEnd)}.`,
             review.upcoming.length,
-            "Nothing due next week.",
+            `Nothing due ${p.nextLabel}.`,
             review.upcoming.map((t) => row(t, t.deadline ? format(parseDateOnly(t.deadline), "EEE d MMM") : "")),
           )}
         </>

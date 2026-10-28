@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main" className="min-w-0 flex-1 px-4 pb-24 pt-6 md:px-8 md:pb-10 md:pt-8">
             <div className="mb-5 flex items-center justify-between md:hidden">
               <Link href="/" className="font-display text-2xl tracking-tight">
-                Tasks<span className="text-primary">.</span>
+                Yazin&apos;s Space<span className="text-primary">.</span>
               </Link>
               <ThemeToggle className="w-28" />
             </div>
