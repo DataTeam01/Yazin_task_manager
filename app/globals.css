@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Warm paper neutrals with a single terracotta accent (--primary). */
+@layer base {
+  :root {
+    --background: 40 25% 97%;
+    --foreground: 24 15% 12%;
+    --card: 40 30% 99%;
+    --card-foreground: 24 15% 12%;
+    --popover: 40 30% 99%;
+    --popover-foreground: 24 15% 12%;
+    --primary: 14 72% 48%;
+    --primary-foreground: 40 30% 99%;
+    --secondary: 38 20% 92%;
+    --secondary-foreground: 24 15% 15%;
+    --muted: 38 20% 92%;
+    --muted-foreground: 25 8% 40%;
+    --accent: 38 25% 90%;
+    --accent-foreground: 24 15% 15%;
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 15% 86%;
+    --input: 35 15% 86%;
+    --ring: 14 72% 48%;
+    --radius: 0.625rem;
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --background: 24 10% 8%;
+    --foreground: 38 20% 93%;
+    --card: 24 10% 11%;
+    --card-foreground: 38 20% 93%;
+    --popover: 24 10% 11%;
+    --popover-foreground: 38 20% 93%;
+    --primary: 14 80% 60%;
+    --primary-foreground: 24 15% 8%;
+    --secondary: 24 8% 16%;
+    --secondary-foreground: 38 20% 93%;
+    --muted: 24 8% 16%;
+    --muted-foreground: 30 10% 65%;
+    --accent: 24 8% 18%;
+    --accent-foreground: 38 20% 93%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 24 8% 20%;
+    --input: 24 8% 20%;
+    --ring: 14 80% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
